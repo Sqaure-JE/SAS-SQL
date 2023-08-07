@@ -1,0 +1,15 @@
+proc sql;
+    create table result as
+    select 
+        a.customer_id,
+        a.customer_name,
+        b.transaction_amount,
+        /* 은행 고객 정보가 있으면 1, 없으면 0으로 표시 */
+        case when c.customer_id is not null then 1 else 0 end as is_bank_customer
+    from 
+        card_customers as a
+        left join card_transactions as b
+        on a.customer_id = b.customer_id
+        left join bank_customers as c
+        on a.customer_id = c.customer_id;
+quit;
