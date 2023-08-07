@@ -1,0 +1,31 @@
+%macro extract_and_combine;
+
+    /* 월별 데이터 추출 */
+    %do i = 1 %to 12;
+
+        %let month = 2022%sysfunc(putn(&i., z2.));
+
+        proc sql;
+            create table month_&month as
+            select *
+            from example_data
+            where month = "&month";
+        quit;
+
+    %end;
+
+    /* 월별 데이터 합치기 */
+    proc sql;
+        create table combined_data as
+        %do i = 1 %to 11;
+            %let month = 2022%sysfunc(putn(&i., z2.));
+            select * from month_&month
+            union
+        %end;
+        %let month = 202212; /* 마지막 월에 union이 필요 없으므로 별도로 처리 */
+        select * from month_&month;
+    quit;
+
+%mend;
+
+%extract_and_combine;
